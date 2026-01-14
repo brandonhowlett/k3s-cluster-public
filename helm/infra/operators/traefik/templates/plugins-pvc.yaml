@@ -1,0 +1,16 @@
+{{- with .Values.pluginsPVC }}
+{{- if .enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .name | default "traefik-plugins-pvc" }}
+  namespace: {{ .namespace | default "traefik" }}
+spec:
+  accessModes:
+    - {{ .accessMode | default "ReadWriteOnce" }}
+  resources:
+    requests:
+      storage: {{ .size | default "1Gi" }}
+  storageClassName: {{ .storageClassName | default "local-path" }}
+{{- end }}
+{{- end }}

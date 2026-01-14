@@ -1,0 +1,6 @@
+kind: deployment
+name: whoami
+namespace: whoami
+rollout:
+  enabled: true
+  timeout: 2m

@@ -1,0 +1,8 @@
+secretsAsFiles:
+  - name: sops-age-key
+    secretName: age-key
+    mountPath: /etc/sops-age-key
+
+extraEnv:
+  - name: SOPS_AGE_KEY_FILE
+    value: /etc/sops-age-key/key.txt

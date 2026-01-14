@@ -1,0 +1,12 @@
+{{- with .Values.dynamicConfig }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name | default "traefik-dynamic-config" }}
+  namespace: {{ .namespace | default "traefik" }}
+data:
+{{- range $filename, $content := .files }}
+  {{ $filename }}: |-
+{{ toYaml $content | indent 4 }}
+{{- end }}
+{{- end }}

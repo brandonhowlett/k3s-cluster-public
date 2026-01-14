@@ -1,0 +1,14 @@
+# secret files
+secret.yaml
+secrets.yaml
+*-secret.yaml
+*-secrets.yaml
+
+# Auxiliary sample files
+defaultValues.yaml
+
+*.json
+
+manifests/certs
+
+print.sh

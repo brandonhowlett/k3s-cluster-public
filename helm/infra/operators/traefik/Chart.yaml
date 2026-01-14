@@ -1,0 +1,17 @@
+apiVersion: v2
+name: traefik
+description: "Local Helm chart for custom Traefik templates and overrides"
+type: application
+version: 1.0.0
+appVersion: "v0.38.0.1"
+# appVersion: "v3.6.5"
+kubeVersion: ">=1.24.0-0"
+home: https://github.com/traefik/traefik-helm-chart
+sources:
+  - https://github.com/traefik/traefik-helm-chart
+keywords:
+  - traefik
+  - ingress
+  - proxy
+  - load-balancer
+  - ingressroute

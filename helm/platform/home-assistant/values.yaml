@@ -1,0 +1,54 @@
+image:
+  tag: stable
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 20Gi
+  storageClass: local-path
+
+# Service
+service:
+  type: ClusterIP
+  port: 8123
+
+# Ingress via Traefik
+ingress:
+  enabled: false
+  # Set to true to allow Traefik to route traffic correctly
+  external: true
+  annotations:
+    # kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: clusterissuer-cloudflare
+    # traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    # traefik.ingress.kubernetes.io/router.tls: "true"
+  # hosts:
+  #   - host: ha.smart.home
+  #     paths:
+  #       - /
+  #   - host: haos.brandonhowlett.com
+  #     paths:
+  #       - /
+  # tls:
+  #   - hosts:
+  #       - ha.smart.home
+  #     secretName: ha-smart-home-tls
+  #   - hosts:
+  #       - haos.brandonhowlett.com
+  #     secretName: haos-brandonhowlett-tls
+
+# Optional: Addons or integrations can be defined here
+addons: {}
+
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+
+configuration:
+  enabled: true
+  trusted_proxies:
+    - 10.0.0.0/8
+  initContainer:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000

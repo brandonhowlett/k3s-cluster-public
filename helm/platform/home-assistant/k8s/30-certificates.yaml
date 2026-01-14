@@ -1,0 +1,33 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: home-assistant-internal
+  namespace: home-assistant
+spec:
+  secretName: home-assistant-internal-tls
+  duration: 2160h
+  renewBefore: 360h
+  issuerRef:
+    name: clusterissuer-lan-smarthome
+    kind: ClusterIssuer
+  commonName: ha.smart.home
+  dnsNames:
+    - ha.smart.home
+    - home-assistant.home-assistant.svc.cluster.local
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: home-assistant-external
+  namespace: home-assistant
+spec:
+  secretName: home-assistant-external-tls
+  duration: 2160h
+  renewBefore: 360h
+  issuerRef:
+    name: clusterissuer-cloudflare
+    kind: ClusterIssuer
+  commonName: haos.brandonhowlett.com
+  dnsNames:
+    - haos.brandonhowlett.com

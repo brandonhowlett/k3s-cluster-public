@@ -1,0 +1,32 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant-internal
+  namespace: home-assistant
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`ha.smart.home`)
+      kind: Rule
+      services:
+        - name: home-assistant
+          port: 8123
+  tls:
+    secretName: home-assistant-internal-tls
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant-external
+  namespace: home-assistant
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`haos.brandonhowlett.com`)
+      kind: Rule
+      services:
+        - name: home-assistant
+          port: 8123

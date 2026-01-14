@@ -1,0 +1,31 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-internal
+  namespace: traefik
+spec:
+  secretName: traefik-internal-tls
+  duration: 2160h
+  renewBefore: 360h
+  issuerRef:
+    name: clusterissuer-lan-smarthome
+    kind: ClusterIssuer
+  dnsNames:
+    - traefik.smart.home
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: smarthome-wildcard
+  namespace: traefik
+spec:
+  secretName: smarthome-wildcard-tls
+  duration: 2160h
+  renewBefore: 360h
+  issuerRef:
+    name: clusterissuer-lan-smarthome
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.smart.home"
+    - "smart.home"

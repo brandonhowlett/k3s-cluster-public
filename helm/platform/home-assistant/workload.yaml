@@ -1,0 +1,6 @@
+kind: statefulset
+name: home-assistant
+namespace: home-assistant
+rollout:
+  enabled: true
+  timeout: 5m

@@ -1,0 +1,5 @@
+kind: none
+name: busybox
+namespace: default
+rollout:
+  enabled: false

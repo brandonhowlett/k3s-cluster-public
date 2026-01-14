@@ -1,0 +1,241 @@
+deployment:  # Ref line 19
+  additionalVolumes:  # Ref line 67
+    - name: dynamic-config
+      configMap:
+        name: traefik-dynamic-config
+        defaultMode: 420
+    - name: tls-certs
+      secret:
+        secretName: local-certs
+    - name: plugins
+      persistentVolumeClaim:
+        claimName: traefik-plugins-pvc
+
+ingressClass:  # Ref line 116
+  enabled: true
+  isDefaultClass: true
+
+experimental:  # Ref line 127
+  plugins:
+    traefik-real-ip:
+      moduleName: github.com/soulbalz/traefik-real-ip
+      version: v1.0.3
+
+ingressRoute:  # Ref line 202
+  dashboard:  # Ref line 203
+    enabled: false
+  healthcheck:  # Ref line 224
+    enabled: true
+    entryPoint: websecure
+
+api:  # Ref line 195
+  dashboard: true
+
+additionalVolumeMounts:  # Ref line 420
+  - name: dynamic-config
+    mountPath: /etc/traefik/dynamic
+  - name: tls-certs
+    mountPath: /etc/certs
+    readOnly: true
+  - name: plugins
+    mountPath: /plugins-storage
+
+logs:  # Ref line 425
+  general:  # Ref line 426
+    level: DEBUG
+  access:  # Ref line 478
+    enabled: true
+    bufferingSize: 100
+
+global:  # Ref line 764
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+additionalArguments:  # Ref line 787
+  - --serverstransport.rootcas=/etc/certs/local-ca.crt
+  - --providers.file.watch=true
+  - --providers.file.directory=/etc/traefik/dynamic/
+
+ports:  # Ref line 799
+  # web:  # Ref line 832
+  #   redirections:  # Handled by Cloudflare SSL; Breaks cloudflared tunnel
+  #     entryPoint:
+  #       to: websecure
+  websecure:  # Ref line 882
+    forwardedHeaders:  # Ref line 924
+      insecure: true
+      trustedIPs:
+        # Cloudflare IPv4
+        - 173.245.48.0/20
+        - 103.21.244.0/22
+        - 103.22.200.0/22
+        - 103.31.4.0/22
+        - 141.101.64.0/18
+        - 108.162.192.0/18
+        - 190.93.240.0/20
+        - 188.114.96.0/20
+        - 197.234.240.0/22
+        - 198.41.128.0/17
+        - 162.158.0.0/15
+        - 104.16.0.0/13
+        - 104.24.0.0/14
+        - 172.64.0.0/13
+        - 131.0.72.0/22
+        # Local / RFC1918
+        - 127.0.0.1/32
+        - 10.0.0.0/8
+        - 192.168.0.0/16
+        - 172.16.0.0/12
+    tls:  # Ref line 944
+      enabled: true
+      options: default
+  mqtt:
+    port: 1883
+  mqtt-secure:
+    port: 8883
+    tls:
+      enabled: true
+  wss:
+    port: 9001
+
+tlsOptions:  # Ref line 992
+  default:
+    minVersion: VersionTLS12
+    cipherSuites:
+      - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+      - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+      - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+      - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+      - TLS_AES_128_GCM_SHA256
+      - TLS_AES_256_GCM_SHA384
+      - TLS_CHACHA20_POLY1305_SHA256
+      - TLS_FALLBACK_SCSV
+    curvePreferences:
+      - CurveP521
+      - CurveP384
+    sniStrict: true
+
+tlsStore:  # Ref line 995
+  default:
+    defaultCertificate:
+      # secretName: traefik-internal-tls
+      secretName: smarthome-wildcard-tls
+
+# persistence:  # Ref line 1062
+#   enabled: true
+#   name: plugins
+#   size: 1Gi
+#   accessMode: ReadWriteOnce
+#   storageClass: local-path
+#   path: /data
+
+# ----------------------------------------------------------------
+# Custom template sections
+# ----------------------------------------------------------------
+
+pluginsPVC:
+  enabled: true
+  name: traefik-plugins-pvc
+
+dynamicConfig:
+  name: traefik-dynamic-config
+  files:
+    serversTransports.yaml:
+      http:
+        serversTransports:
+          default:
+            insecureSkipVerify: true
+            rootcas:
+              - /etc/certs/local-ca.crt
+    middlewares.yaml:
+      http:
+        middlewares:
+          middlewares-basic-auth:
+            basicAuth:
+              realm: "Traefik Basic Auth"
+              usersFile: /shared/www/.htpasswd
+          middlewares-oauth:
+            forwardAuth:
+              address: "http://oauth:4181"
+              authResponseHeaders:
+                - X-Forwarded-User
+              trustForwardHeader: true
+          middlewares-rate-limit:
+            rateLimit:
+              average: 100
+              burst: 50
+          middlewares-high-rate-limit:
+            rateLimit:
+              average: 200
+              burst: 100
+          middlewares-ultra-high-rate-limit:
+            rateLimit:
+              average: 400
+              burst: 200
+          middlewares-internal-ipallowlist:
+            ipAllowList:
+              sourceRange:
+                - "10.0.0.0/8"
+          middlewares-secure-headers:
+            headers:
+              accessControlAllowMethods:
+                - GET
+                - OPTIONS
+                - PUT
+              accessControlAllowHeaders:
+                - "*"
+              accessControlAllowOriginList:
+                - "*"
+              accessControlMaxAge: 100
+              browserXssFilter: true
+              contentTypeNosniff: true
+              contentSecurityPolicy: "frame-ancestors 'self' https://*.brandonhowlett.com https://*.smart.home"
+              customResponseHeaders:
+                X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,"
+                server: ""
+              PermissionsPolicy: "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
+              forceSTSHeader: true
+              hostsProxyHeaders:
+                - X-Forwarded-Host
+              referrerPolicy: same-origin
+              stsIncludeSubdomains: true
+              stsPreload: true
+              stsSeconds: 63072000
+          middlewares-real-ip:
+            plugin:
+              traefik-real-ip:
+                excludednets:
+                  - 1.1.1.1/24
+    middlewaresChains.yaml:
+      http:
+        middlewares:
+          chain-basic-auth:
+            chain:
+              middlewares:
+                - middlewares-secure-headers
+                - middlewares-rate-limit
+                - middlewares-basic-auth
+          chain-no-auth:
+            chain:
+              middlewares:
+                - middlewares-secure-headers
+                - middlewares-rate-limit
+          chain-hrl-no-auth:
+            chain:
+              middlewares:
+                - middlewares-secure-headers
+                - middlewares-high-rate-limit
+          chain-oauth:
+            chain:
+              middlewares:
+                - middlewares-secure-headers
+                - middlewares-rate-limit
+                - middlewares-oauth
+          chain-hrl-oauth:
+            chain:
+              middlewares:
+                - middlewares-secure-headers
+                - middlewares-high-rate-limit
+                - middlewares-oauth

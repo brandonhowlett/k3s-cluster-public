@@ -1,0 +1,15 @@
+# Ref line 97
+crds:
+  enabled: true
+  keep: true
+
+# Ref line 192
+namespace: cert-manager
+
+# Ref line 290
+dns01RecursiveNameservers: "1.1.1.1:53,8.8.8.8:53"
+dns01RecursiveNameserversOnly: true
+
+# Ref line 321
+extraArgs:
+  - --acme-http01-solver-nameservers=1.1.1.1:53,8.8.8.8:53

@@ -1,0 +1,10 @@
+tunnelSecrets:
+  existingPemFileSecret:
+    name: "cloudflared-tunnel-secrets"
+    key: "cert.pem"
+  existingConfigJsonFileSecret:
+    name: "cloudflared-tunnel-secrets"
+    key: "credentials.json"
+
+tunnelConfig:
+  name: traefik-smarthome

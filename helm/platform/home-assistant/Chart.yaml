@@ -1,0 +1,12 @@
+apiVersion: v2
+name: home-assistant
+description: "Home Assistant deployment for smart home services"
+type: application
+version: 1.0.0
+appVersion: "2025.12.0" # replace with actual HA version
+keywords:
+  - home-assistant
+  - automation
+maintainers:
+  - name: Brandon
+    email: brandonhowlett@gmail.com
